@@ -54,3 +54,8 @@ Town currently pins this package as `@brokkai/simplifier-bot`. Local development
 can override the executable with the simplifier bot command setting.
 
 No release has been published from this initial implementation.
+
+## License
+
+Licensed under [MIT](LICENSE). Release packages include third-party notices
+for bundled dependencies, which retain their own license terms.

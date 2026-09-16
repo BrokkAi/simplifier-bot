@@ -35,7 +35,7 @@ const fs = require('node:fs');
 const [dir, version, os, cpu] = process.argv.slice(2);
 fs.writeFileSync(`${dir}/package.json`, JSON.stringify({
   name: `@brokkai/simplifier-bot-${os}-${cpu}`, version,
-  os: [os], cpu: [cpu], license: 'Apache-2.0',
+  os: [os], cpu: [cpu], license: 'MIT',
   repository: 'github:BrokkAi/simplifier-bot',
   files: ['bin', 'LICENSE', 'NOTICE', 'THIRD_PARTY_NOTICES.txt']
 }, null, 2));
@@ -68,7 +68,7 @@ for (const os of ['linux', 'darwin']) {
   }
 }
 fs.writeFileSync(`${dir}/package.json`, JSON.stringify({
-  name: '@brokkai/simplifier-bot', version, license: 'Apache-2.0',
+  name: '@brokkai/simplifier-bot', version, license: 'MIT',
   repository: 'github:BrokkAi/simplifier-bot',
   bin: {bsb: 'bsb.cjs'}, files: ['bsb.cjs', 'LICENSE', 'NOTICE', 'README.md', 'THIRD_PARTY_NOTICES.txt'],
   optionalDependencies

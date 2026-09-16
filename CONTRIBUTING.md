@@ -37,9 +37,9 @@ packaging smoke checks described in [RELEASING.md](RELEASING.md).
 
 ## Licensing and dependencies
 
-This project uses [Apache-2.0](LICENSE). By intentionally submitting a
+This project uses [MIT](LICENSE). By intentionally submitting a
 contribution for inclusion, you submit it under the project's license unless
-you explicitly state otherwise, as described in section 5. Submit only work
+you explicitly state otherwise. Submit only work
 you have the right to share and preserve upstream attribution and notices.
 
 Release packaging generates third-party notices automatically from the selected
