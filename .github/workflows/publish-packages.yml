@@ -1,70 +1,23 @@
-name: Publish packages
-run-name: Release ${{ inputs.tag || github.ref_name }} (publish=${{ github.event_name == 'push' || inputs.publish }})
+name: Release
 on:
   push:
     tags: ['v*']
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Proposed version (preflight) or existing exact tag (publication)
-        required: true
-        type: string
-      publish:
-        description: Publish all destinations after validation
-        type: boolean
-        default: false
 permissions:
-  contents: read
-concurrency:
-  group: simplifier-bot-packages
-  cancel-in-progress: false
+  contents: write
+  id-token: write
 jobs:
-  native:
-    uses: ./.github/workflows/release.yml
-    with:
-      tag: ${{ inputs.tag || github.ref_name }}
-  packages:
-    needs: native
+  release:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     environment: packages-publish
-    permissions:
-      contents: write
-      actions: read
-      id-token: write
-    env:
-      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
-      RELEASE_COMMIT: ${{ github.sha }}
-      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
-          persist-credentials: false
-      - name: Require exact tag only for publication
-        if: github.event_name == 'push' || inputs.publish
-        env:
-          RELEASE_REF: ${{ github.ref }}
-        run: test "$RELEASE_REF" = "refs/tags/$RELEASE_TAG"
+          go-version-file: go.mod
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: '24'
           registry-url: https://registry.npmjs.org
-      - name: Download this run's validated native assets
-        run: gh run download "$GITHUB_RUN_ID" --repo github.com/BrokkAi/simplifier-bot --name "native-$RELEASE_TAG" --dir dist/native
-      - name: Build and test all five packages
-        run: |
-          python3 scripts/package_installers.py "$RELEASE_TAG" dist/native dist/packages
-          python3 scripts/smoke_installers.py --tag "$RELEASE_TAG" --assets dist/native --packages dist/packages
-      - name: Save exact staged packages for independent verification
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
-        with:
-          name: packages-${{ inputs.tag || github.ref_name }}
-          path: dist/packages/
-          if-no-files-found: error
-      - name: Validate every destination before any final upload
-        run: python3 scripts/release_preflight.py version
-      - name: Check actual publishing credentials without uploads
-        run: python3 scripts/release_authorization.py
-      - name: Publish or resume all destinations and finalize GitHub last
-        if: github.event_name == 'push' || inputs.publish
-        run: python3 scripts/release_preflight.py publish
+      - run: bash scripts/release.sh "$GITHUB_REF_NAME"
+        env:
+          GH_TOKEN: ${{ github.token }}
