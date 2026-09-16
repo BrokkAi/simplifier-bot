@@ -68,7 +68,7 @@ def package(tag, assets, output, sha):
             npm_pack(package_name, {"os": [system], "cpu": [arch], "description": f"Brokk Simplifier Bot native binary for {system}/{arch}"},
                      {"bin/bsb": files["bsb"], **{name: files[name] for name in licenses.LEGAL_FILES}, "README.md": files["README.md"], "BUILD.json": files["BUILD.json"]})
         npm_pack(NPM_ROOT, {
-            "description": "Brokk Simplifier Bot: autonomous bug discovery and duplicate-aware GitHub issue reporting",
+            "description": "Brokk Simplifier Bot: complexity and value review for Brokk Town",
             "bin": {"bsb": "bin/bsb.cjs"}, "engines": {"node": ">=18"},
             "os": ["linux", "darwin"], "cpu": ["x64", "arm64"], "optionalDependencies": dependencies,
         }, {"bin/bsb.cjs": (ROOT / "npm/bsb.cjs").read_bytes(), **{name: files[name] for name in licenses.LEGAL_FILES}, "README.md": files["README.md"]})
