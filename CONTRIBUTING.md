@@ -42,8 +42,8 @@ contribution for inclusion, you submit it under the project's license unless
 you explicitly state otherwise, as described in section 5. Submit only work
 you have the right to share and preserve upstream attribution and notices.
 
-Keep third-party notices current when adding or removing bundled material or
-when its license or attribution changes; see [licenses/README.md](licenses/README.md).
-Dependency upgrades do not require a separate approval or hash inventory update.
-Commit `go.mod` and `go.sum` when dependencies change. Do not add local replacement
-directives to a release.
+Release packaging generates third-party notices automatically from the selected
+Go modules and toolchain. No checked-in notice inventory, hash updates, or
+separate approvals are needed for dependency upgrades. Commit `go.mod` and
+`go.sum` when dependencies change. Do not add local replacement directives to
+a release. See [RELEASING.md](RELEASING.md).
