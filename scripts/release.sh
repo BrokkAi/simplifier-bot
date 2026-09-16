@@ -55,6 +55,7 @@ done
 
 mkdir -p "$dist/launcher"
 cp npm/bsb.cjs LICENSE NOTICE README.md "$dist/launcher/"
+cp -R licenses "$dist/launcher/"
 node - "$dist/launcher" "$version" <<'JS'
 const fs = require('node:fs');
 const [dir, version] = process.argv.slice(2);
@@ -67,7 +68,7 @@ for (const os of ['linux', 'darwin']) {
 fs.writeFileSync(`${dir}/package.json`, JSON.stringify({
   name: '@brokkai/simplifier-bot', version, license: 'Apache-2.0',
   repository: 'github:BrokkAi/simplifier-bot',
-  bin: {bsb: 'bsb.cjs'}, files: ['bsb.cjs', 'LICENSE', 'NOTICE', 'README.md'],
+  bin: {bsb: 'bsb.cjs'}, files: ['bsb.cjs', 'LICENSE', 'NOTICE', 'README.md', 'licenses'],
   optionalDependencies
 }, null, 2));
 JS

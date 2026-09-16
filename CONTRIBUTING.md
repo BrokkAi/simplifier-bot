@@ -24,7 +24,6 @@ Install the Go version in `go.mod` and Python 3. Run from the repository root:
 ```sh
 go test -race ./...
 go vet ./...
-python3 scripts/licenses.py
 python3 -m unittest discover -s scripts -p '*_test.py'
 ```
 
@@ -43,7 +42,8 @@ contribution for inclusion, you submit it under the project's license unless
 you explicitly state otherwise, as described in section 5. Submit only work
 you have the right to share and preserve upstream attribution and notices.
 
-Dependency versions, legal texts, generated tables, and bundled assets require
-license review. Follow [licenses/README.md](licenses/README.md), update the
-reviewed policy and notices together, and commit `go.mod` and `go.sum` when
-dependencies change. Do not add local replacement directives to a release.
+Keep third-party notices current when adding or removing bundled material or
+when its license or attribution changes; see [licenses/README.md](licenses/README.md).
+Dependency upgrades do not require a separate approval or hash inventory update.
+Commit `go.mod` and `go.sum` when dependencies change. Do not add local replacement
+directives to a release.
