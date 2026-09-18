@@ -144,8 +144,7 @@ func Assess(ctx context.Context, cfg Config, mode string, issue, pr int, log *sl
 		if i, err = source.issue(ctx, issue); err != nil {
 			return Assessment{}, err
 		}
-		worktree, revision, err = base.itemWorktree(ctx, fmt.Sprintf("issue-%d", issue), "refs/remotes/origin/"+cfg.Branch, head)
-		if err != nil {
+		if worktree, err = base.itemWorktree(ctx, fmt.Sprintf("issue-%d", issue), head); err != nil {
 			return Assessment{}, err
 		}
 		target = i
@@ -157,8 +156,10 @@ func Assess(ctx context.Context, cfg Config, mode string, issue, pr int, log *sl
 		if p.Head.SHA == "" {
 			return Assessment{}, errors.New("GitHub omitted the pull request head")
 		}
-		worktree, revision, err = base.itemWorktree(ctx, fmt.Sprintf("pr-%d", pr), fmt.Sprintf("refs/pull/%d/head", pr), p.Head.SHA)
-		if err != nil {
+		if revision, err = base.fetchItem(ctx, fmt.Sprintf("refs/pull/%d/head", pr), p.Head.SHA); err != nil {
+			return Assessment{}, err
+		}
+		if worktree, err = base.itemWorktree(ctx, fmt.Sprintf("pr-%d", pr), revision); err != nil {
 			return Assessment{}, err
 		}
 		target = p
