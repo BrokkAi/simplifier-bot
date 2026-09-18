@@ -50,41 +50,49 @@ func (g checkout) open(ctx context.Context) error {
 	return err
 }
 
-// itemWorktree provides an immutable checkout at one exact revision. Issue
-// assessment uses the branch head; PR assessment uses GitHub's pull-request ref.
-func (g checkout) itemWorktree(ctx context.Context, name, ref, expected string) (checkout, string, error) {
-	if _, err := g.git(ctx, "fetch", "--", ref); err != nil {
-		return checkout{}, "", err
+// fetchItem retrieves a ref outside the managed branch refspec, such as a
+// pull-request head, and reports the revision it resolves to. The ref names a
+// refspec on origin, never a repository, so origin must precede it.
+func (g checkout) fetchItem(ctx context.Context, ref, expected string) (string, error) {
+	if _, err := g.git(ctx, "fetch", "--no-tags", "--", "origin", ref); err != nil {
+		return "", err
 	}
 	rev, err := g.git(ctx, "rev-parse", "FETCH_HEAD")
 	if err != nil {
-		return checkout{}, "", err
+		return "", err
 	}
 	if rev != expected {
-		return checkout{}, "", fmt.Errorf("GitHub revision moved: expected %s, fetched %s", expected, rev)
+		return "", fmt.Errorf("GitHub revision moved: expected %s, fetched %s", expected, rev)
 	}
+	return rev, nil
+}
+
+// itemWorktree provides an immutable checkout at one exact revision. Issue
+// assessment uses the branch head; PR assessment uses the revision fetchItem
+// resolved from GitHub's pull-request ref.
+func (g checkout) itemWorktree(ctx context.Context, name, rev string) (checkout, error) {
 	dir := filepath.Join(g.config.Directory+"-items", name)
 	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
 		if err := os.MkdirAll(filepath.Dir(dir), 0700); err != nil {
-			return checkout{}, "", err
+			return checkout{}, err
 		}
 		if _, err := g.git(ctx, "worktree", "add", "--detach", "--", dir, rev); err != nil {
-			return checkout{}, "", err
+			return checkout{}, err
 		}
 	} else if err != nil {
-		return checkout{}, "", err
+		return checkout{}, err
 	}
 	w := g
 	w.config.Directory = dir
 	if head, verifyErr := w.git(ctx, "rev-parse", "HEAD"); verifyErr == nil && head != rev {
 		if _, diffErr := w.git(ctx, "diff", "--exit-code", "HEAD", "--"); diffErr == nil {
 			if _, err := g.git(ctx, "worktree", "remove", "--", dir); err != nil {
-				return checkout{}, "", err
+				return checkout{}, err
 			}
-			return g.itemWorktree(ctx, name, ref, expected)
+			return g.itemWorktree(ctx, name, rev)
 		}
 	}
-	return w, rev, w.verify(ctx, rev)
+	return w, w.verify(ctx, rev)
 }
 func (g checkout) verify(ctx context.Context, expected string) error {
 	root, err := g.git(ctx, "rev-parse", "--show-toplevel")
